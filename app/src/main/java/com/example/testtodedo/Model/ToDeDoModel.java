@@ -5,6 +5,13 @@ public class ToDeDoModel {
     private String task;
     private boolean isCompleted;
 
+    public ToDeDoModel(int id, int status, String task) {
+        this.id = id;
+        this.status = status;
+        this.task = task;
+        this.isCompleted = false;
+    }
+
     public int getId() {
         return id;
     }
@@ -37,5 +44,6 @@ public class ToDeDoModel {
         isCompleted = completed;
     }
 }
+
 
 

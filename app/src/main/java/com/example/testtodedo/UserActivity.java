@@ -21,6 +21,7 @@ public class UserActivity extends AppCompatActivity {
 
     private TextView usernameTextView;
     private TextView emailTextView;
+    private SharedPreferencesHelper sharedPreferencesHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +30,13 @@ public class UserActivity extends AppCompatActivity {
 
         usernameTextView = findViewById(R.id.username);
         emailTextView = findViewById(R.id.email);
+        sharedPreferencesHelper = new SharedPreferencesHelper(this);
+
+        NewUser user = sharedPreferencesHelper.getUser();
+        if (user != null) {
+            usernameTextView.setText(user.getFullName());
+            emailTextView.setText(user.getEmail());
+        }
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -85,7 +93,7 @@ public class UserActivity extends AppCompatActivity {
         dialog.getWindow().setAttributes(layoutParams);
 
         EditText editUsername = dialog.findViewById(R.id.editUsername);
-        EditText editEmail = dialog.findViewById(R.id.editEmail); // Corrected ID for email
+        EditText editEmail = dialog.findViewById(R.id.editEmail);
         Button cancelButton = dialog.findViewById(R.id.cancelButton);
         Button okButton = dialog.findViewById(R.id.okButton);
 
@@ -109,6 +117,10 @@ public class UserActivity extends AppCompatActivity {
                 if (!newUsername.isEmpty() && !newEmail.isEmpty()) {
                     usernameTextView.setText(newUsername);
                     emailTextView.setText(newEmail);
+
+                    NewUser updatedUser = new NewUser(newUsername, newEmail, sharedPreferencesHelper.getUser().getPassword());
+                    sharedPreferencesHelper.saveUser(updatedUser);
+
                     dialog.dismiss();
                 } else {
                     Toast.makeText(UserActivity.this, "Please enter both username and email", Toast.LENGTH_SHORT).show();
@@ -132,32 +144,24 @@ public class UserActivity extends AppCompatActivity {
 
         dialog.getWindow().setAttributes(layoutParams);
 
-        TextView signOutMessage = dialog.findViewById(R.id.signOutMessage);
-        Button cancelButton = dialog.findViewById(R.id.cancelButton);
-        Button okButton = dialog.findViewById(R.id.okButton);
+        Button cancelSignOutButton = dialog.findViewById(R.id.cancelButton);
+        Button okSignOutButton = dialog.findViewById(R.id.okButton);
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        cancelSignOutButton.setOnClickListener(v -> dialog.dismiss());
 
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Handle OK button click event
-                dialog.dismiss();
-                Intent intent = new Intent(UserActivity.this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
-            }
+        okSignOutButton.setOnClickListener(v -> {
+            sharedPreferencesHelper.clearUserData();
+            dialog.dismiss();
+            Intent intent = new Intent(UserActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
         });
 
         dialog.show();
     }
 }
+
 
 
 

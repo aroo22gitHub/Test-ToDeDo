@@ -17,16 +17,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.testtodedo.Model.ToDeDoModel;
 import com.example.testtodedo.R;
 
 import java.util.List;
 
 public class ToDeDoAdapter extends RecyclerView.Adapter<ToDeDoAdapter.TaskViewHolder> {
 
-    private List<String> taskList;
+    private List<ToDeDoModel> taskList;
     private Context context;
 
-    public ToDeDoAdapter(List<String> taskList) {
+    public ToDeDoAdapter(List<ToDeDoModel> taskList) {
         this.taskList = taskList;
     }
 
@@ -34,23 +35,24 @@ public class ToDeDoAdapter extends RecyclerView.Adapter<ToDeDoAdapter.TaskViewHo
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
         return new TaskViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
-        String task = taskList.get(position);
-        holder.taskName.setText(task);
+        ToDeDoModel task = taskList.get(position);
+        holder.taskName.setText(task.getTask());
+        holder.checkBox.setChecked(task.getStatus() == 1);
 
-        holder.checkBox.setOnClickListener(v -> holder.checkBox.setChecked(!holder.checkBox.isChecked()));
+        holder.checkBox.setOnClickListener(v -> task.setStatus(holder.checkBox.isChecked() ? 1 : 0));
 
-        holder.editButton.setOnClickListener(v -> showEditTaskDialog(holder.getAdapterPosition()));
+        holder.editButton.setOnClickListener(v -> showEditTaskDialog(position));
 
         holder.deleteButton.setOnClickListener(v -> {
-            taskList.remove(holder.getAdapterPosition());
-            notifyItemRemoved(holder.getAdapterPosition());
-            notifyItemRangeChanged(holder.getAdapterPosition(), taskList.size());
+            taskList.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, taskList.size());
         });
     }
 
@@ -68,7 +70,7 @@ public class ToDeDoAdapter extends RecyclerView.Adapter<ToDeDoAdapter.TaskViewHo
         dialog.getWindow().setAttributes(layoutParams);
 
         EditText taskEditText = dialog.findViewById(R.id.taskInput);
-        taskEditText.setText(taskList.get(position));
+        taskEditText.setText(taskList.get(position).getTask());
         Button cancelButton = dialog.findViewById(R.id.cancelButton);
         Button okButton = dialog.findViewById(R.id.okButton);
 
@@ -77,7 +79,7 @@ public class ToDeDoAdapter extends RecyclerView.Adapter<ToDeDoAdapter.TaskViewHo
         okButton.setOnClickListener(v -> {
             String editedTask = taskEditText.getText().toString().trim();
             if (!editedTask.isEmpty()) {
-                taskList.set(position, editedTask);
+                taskList.get(position).setTask(editedTask);
                 notifyItemChanged(position);
                 dialog.dismiss();
             } else {
@@ -108,6 +110,10 @@ public class ToDeDoAdapter extends RecyclerView.Adapter<ToDeDoAdapter.TaskViewHo
         }
     }
 }
+
+
+
+
 
 
 

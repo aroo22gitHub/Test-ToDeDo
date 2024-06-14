@@ -3,6 +3,7 @@ package com.example.testtodedo;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -17,8 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.testtodedo.Adapter.ToDeDoAdapter;
+import com.example.testtodedo.Model.ToDeDoModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.example.testtodedo.R; // Ensure this import is present
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ToDeDoAdapter toDeDoAdapter;
-    private List<String> taskList;
+    private List<ToDeDoModel> taskList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +40,14 @@ public class MainActivity extends AppCompatActivity {
 
         taskList = new ArrayList<>();
         // Add initial tasks to the list
-        taskList.add("Task 1");
-        taskList.add("Task 2");
-        taskList.add("Task 3");
+        taskList.add(new ToDeDoModel(1, 0, "Task 1"));
+        taskList.add(new ToDeDoModel(2, 0, "Task 2"));
+        taskList.add(new ToDeDoModel(3, 0, "Task 3"));
+
+        Log.d("MainActivity", "Task List Size: " + taskList.size());
+        for (ToDeDoModel task : taskList) {
+            Log.d("MainActivity", "Task: " + task.getTask());
+        }
 
         toDeDoAdapter = new ToDeDoAdapter(taskList);
         recyclerView.setAdapter(toDeDoAdapter);
@@ -106,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String task = taskEditText.getText().toString().trim();
                 if (!task.isEmpty()) {
-                    taskList.add(task);
+                    ToDeDoModel newTask = new ToDeDoModel(taskList.size() + 1, 0, task);
+                    taskList.add(newTask);
                     toDeDoAdapter.notifyItemInserted(taskList.size() - 1);
                     dialog.dismiss();
                 } else {
@@ -118,6 +125,11 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 }
+
+
+
+
+
 
 
 
